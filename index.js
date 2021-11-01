@@ -22,6 +22,7 @@ async function run() {
         // console.log('connect to database')
         const database = client.db('easyCamping');
         const offersCollection = database.collection('offers');
+        const BookingCollection = database.collection('booking');
 
         // GET API 
         app.get('/offers', async (req, res) => {
@@ -33,7 +34,8 @@ async function run() {
         // GET Single offer 
         app.get('/offers/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+            console.log('i have gotten', id);
+            const query = { _id: id };
             const offer = await offersCollection.findOne(query);
             res.json(offer);
         });
@@ -48,11 +50,36 @@ async function run() {
             res.json(result);
         });
 
+        //booking tour
+        app.post("/myBooking", async (req, res) => {
+            console.log(req.body);
+            const result = await BookingCollection.insertOne(req.body);
+            res.send(result);
+        });
+
+
+        // add booking 
+        app.post("/addBooking", async (req, res) => {
+            // console.log(req.body);
+            const result = await BookingCollection.insertOne(req.body)
+            console.log(result);
+            res.json(result);
+        });
+
         // DELETE API 
-        app.delete('/offers/:id', async (req, res) => {
+        app.delete('/myBooking/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const result = await offersCollection.deleteOne(query);
+            const query = { _id: id };
+            const result = await BookingCollection.deleteOne(query);
+            res.json(result);
+        });
+
+
+        // get my booking 
+        app.get("/myBooking/:email", async (req, res) => {
+            console.log(req.params.email);
+            const result = await BookingCollection.find({ email: req.params.email }).toArray();
+            // console.log(result);
             res.json(result);
         })
     }
